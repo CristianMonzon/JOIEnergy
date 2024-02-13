@@ -1,7 +1,8 @@
-﻿using System;
+﻿using JOIEnergy.Domain;
+using JOIEnergy.Services.Interface;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using JOIEnergy.Domain;
 
 namespace JOIEnergy.Services
 {
@@ -16,6 +17,17 @@ namespace JOIEnergy.Services
         {
             _pricePlans = pricePlan;
             _meterReadingService = meterReadingService;
+        }
+
+        public Dictionary<String, decimal> GetConsumptionCostOfElectricityReadingsForEachPricePlan(String smartMeterId)
+        {
+            List<ElectricityReading> electricityReadings = _meterReadingService.GetReadings(smartMeterId);
+
+            if (!electricityReadings.Any())
+            {
+                return new Dictionary<string, decimal>();
+            }
+            return _pricePlans.ToDictionary(plan => plan.EnergySupplier.ToString(), plan => calculateCost(electricityReadings, plan));
         }
 
         private decimal calculateAverageReading(List<ElectricityReading> electricityReadings)
@@ -38,17 +50,6 @@ namespace JOIEnergy.Services
             var timeElapsed = calculateTimeElapsed(electricityReadings);
             var averagedCost = average/timeElapsed;
             return averagedCost * pricePlan.UnitRate;
-        }
-
-        public Dictionary<String, decimal> GetConsumptionCostOfElectricityReadingsForEachPricePlan(String smartMeterId)
-        {
-            List<ElectricityReading> electricityReadings = _meterReadingService.GetReadings(smartMeterId);
-
-            if (!electricityReadings.Any())
-            {
-                return new Dictionary<string, decimal>();
-            }
-            return _pricePlans.ToDictionary(plan => plan.EnergySupplier.ToString(), plan => calculateCost(electricityReadings, plan));
         }
     }
 }

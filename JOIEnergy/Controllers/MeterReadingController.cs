@@ -1,10 +1,9 @@
-﻿using System;
+﻿using JOIEnergy.Domain;
+using JOIEnergy.Services.Interface;
+using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using JOIEnergy.Domain;
-using JOIEnergy.Services;
-using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -21,7 +20,7 @@ namespace JOIEnergy.Controllers
         }
         // POST api/values
         [HttpPost ("store")]
-        public ObjectResult Post([FromBody]MeterReadings meterReadings)
+        public ObjectResult Post([FromBody]MeterReading meterReadings)
         {
             if (!IsMeterReadingsValid(meterReadings)) {
                 return new BadRequestObjectResult("Internal Server Error");
@@ -30,7 +29,14 @@ namespace JOIEnergy.Controllers
             return new OkObjectResult("{}");
         }
 
-        private bool IsMeterReadingsValid(MeterReadings meterReadings)
+
+        [HttpGet("read/{smartMeterId}")]
+        public ObjectResult GetReading(string smartMeterId)
+        {
+            return new OkObjectResult(_meterReadingService.GetReadings(smartMeterId));
+        }
+
+        private bool IsMeterReadingsValid(MeterReading meterReadings)
         {
             String smartMeterId = meterReadings.SmartMeterId;
             List<ElectricityReading> electricityReadings = meterReadings.ElectricityReadings;
@@ -38,9 +44,5 @@ namespace JOIEnergy.Controllers
                     && electricityReadings != null && electricityReadings.Any();
         }
 
-        [HttpGet("read/{smartMeterId}")]
-        public ObjectResult GetReading(string smartMeterId) {
-            return new OkObjectResult(_meterReadingService.GetReadings(smartMeterId));
-        }
     }
 }

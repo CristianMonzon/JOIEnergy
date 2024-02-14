@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 
-namespace JOIEnergy.Domain
+namespace JOIEnergy.DTO
 {
-    public class ElectricityReading
+    public class ElectricityReadingDTO
     {
         public DateTime Time { get; set; }
         public Decimal Reading { get; set; }
+
     }
 }

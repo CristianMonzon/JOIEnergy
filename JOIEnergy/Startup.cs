@@ -1,58 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using JOIEnergy.Domain;
-using JOIEnergy.Enums;
+﻿using JOIEnergy.Business.Config;
 using JOIEnergy.Generator;
 using JOIEnergy.Services;
+using JOIEnergy.Services.Interface;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Swashbuckle.AspNetCore.SwaggerUI;
+using System;
+using System.IO;
 
 namespace JOIEnergy
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var readings =
-                GenerateMeterElectricityReadings();
-
-            var pricePlans = new List<PricePlan> {
-                new PricePlan{
-                    EnergySupplier = Enums.Supplier.DrEvilsDarkEnergy,
-                    UnitRate = 10m,
-                    PeakTimeMultiplier = new List<PeakTimeMultiplier>()
-                },
-                new PricePlan{
-                    EnergySupplier = Enums.Supplier.TheGreenEco,
-                    UnitRate = 2m,
-                    PeakTimeMultiplier = new List<PeakTimeMultiplier>()
-                },
-                new PricePlan{
-                    EnergySupplier = Enums.Supplier.PowerForEveryone,
-                    UnitRate = 1m,
-                    PeakTimeMultiplier = new List<PeakTimeMultiplier>()
-                }
-            };
+            services.AddSingleton<AppSettings>(new AppSettings(GenerateConfiguration()));
+            services.AddSwaggerGen(SetUpSwaggerDoc);
 
             services.AddMvc(options => options.EnableEndpointRouting = false);
             services.AddTransient<IAccountService, AccountService>();
             services.AddTransient<IMeterReadingService, MeterReadingService>();
             services.AddTransient<IPricePlanService, PricePlanService>();
-            services.AddSingleton((IServiceProvider arg) => readings);
-            services.AddSingleton((IServiceProvider arg) => pricePlans);
-            services.AddSingleton((IServiceProvider arg) => SmartMeterToPricePlanAccounts);
+            services.AddSingleton((IServiceProvider arg) => ElectricityReadingGenerator.ElectricityReading());
+            services.AddSingleton((IServiceProvider arg) => PricePlanGenerator.PricePlans());
+            services.AddSingleton((IServiceProvider arg) => SuppliersGenerator.Suppliers);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -61,35 +45,36 @@ namespace JOIEnergy
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(SetUpSwaggerDoc);
             }
-
             app.UseMvc();
         }
 
-        private Dictionary<string, List<ElectricityReading>> GenerateMeterElectricityReadings() {
-            var readings = new Dictionary<string, List<ElectricityReading>>();
-            var generator = new ElectricityReadingGenerator();
-            var smartMeterIds = SmartMeterToPricePlanAccounts.Select(mtpp => mtpp.Key);
+        #region Generation
 
-            foreach (var smartMeterId in smartMeterIds)
-            {
-                readings.Add(smartMeterId, generator.Generate(20));
-            }
-            return readings;
-        }
-
-        public Dictionary<String, Supplier> SmartMeterToPricePlanAccounts
+        private static IConfigurationRoot GenerateConfiguration()
         {
-            get
-            {
-                Dictionary<String, Supplier> smartMeterToPricePlanAccounts = new Dictionary<string, Supplier>();
-                smartMeterToPricePlanAccounts.Add("smart-meter-0", Supplier.DrEvilsDarkEnergy);
-                smartMeterToPricePlanAccounts.Add("smart-meter-1", Supplier.TheGreenEco);
-                smartMeterToPricePlanAccounts.Add("smart-meter-2", Supplier.DrEvilsDarkEnergy);
-                smartMeterToPricePlanAccounts.Add("smart-meter-3", Supplier.PowerForEveryone);
-                smartMeterToPricePlanAccounts.Add("smart-meter-4", Supplier.TheGreenEco);
-                return smartMeterToPricePlanAccounts;
-            }
+            return new ConfigurationBuilder()
+                            .SetBasePath(Directory.GetCurrentDirectory())
+                            .AddJsonFile("appsettings.json").Build();
         }
+
+        private static void SetUpSwaggerDoc(SwaggerGenOptions c)
+        {
+            c.SwaggerDoc("v1", new OpenApiInfo()
+            {
+                Title = "JOIEnergy",
+                Version = "v1",
+                Description = "JOI Energy"
+            });
+        }
+
+        private void SetUpSwaggerDoc(SwaggerUIOptions c)
+        {            
+            c.SwaggerEndpoint("v1/swagger.json", "Swagger JOI Energy");
+        }
+               
+        #endregion
     }
 }

@@ -1,6 +1,6 @@
 ﻿using JOIEnergy.Enums;
 
-namespace JOIEnergy.Services
+namespace JOIEnergy.Services.Interface
 {
     public interface IAccountService
     {

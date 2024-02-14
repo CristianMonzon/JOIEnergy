@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using JOIEnergy.Domain;
-using JOIEnergy.Services;
+﻿using JOIEnergy.Domain;
+using JOIEnergy.DTO;
+using JOIEnergy.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Linq;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -19,10 +18,12 @@ namespace JOIEnergy.Controllers
         {
             _meterReadingService = meterReadingService;
         }
-        // POST api/values
+        
         [HttpPost ("store")]
-        public ObjectResult Post([FromBody]MeterReadings meterReadings)
+        public ObjectResult Post([FromBody]MeterReadingDTO meterReadingDto)
         {
+            var meterReadings = meterReadingDto.FromDto();
+
             if (!IsMeterReadingsValid(meterReadings)) {
                 return new BadRequestObjectResult("Internal Server Error");
             }
@@ -30,17 +31,30 @@ namespace JOIEnergy.Controllers
             return new OkObjectResult("{}");
         }
 
-        private bool IsMeterReadingsValid(MeterReadings meterReadings)
+        [HttpGet("read")]
+        public ObjectResult GetAll()
         {
-            String smartMeterId = meterReadings.SmartMeterId;
-            List<ElectricityReading> electricityReadings = meterReadings.ElectricityReadings;
-            return smartMeterId != null && smartMeterId.Any()
-                    && electricityReadings != null && electricityReadings.Any();
+            var readings = _meterReadingService.GetReadings();
+            var readingsDTO = readings.ToDictionary(c => c.Key, c => c.Value.Select(c => c.ToDto()));
+            return new OkObjectResult(readingsDTO);
         }
 
         [HttpGet("read/{smartMeterId}")]
-        public ObjectResult GetReading(string smartMeterId) {
-            return new OkObjectResult(_meterReadingService.GetReadings(smartMeterId));
+        public ObjectResult GetReading(string smartMeterId)
+        {
+            var readings = _meterReadingService.GetReadings(smartMeterId);
+            var readingsDTO = readings.Select(c => c.ToDto());
+            return new OkObjectResult(readings);
+        }
+
+        private bool IsMeterReadingsValid(MeterReading meterReadings)
+        {
+            String smartMeterId = meterReadings.SmartMeterId;
+            var electricityReadings = meterReadings.ElectricityReadings;            
+            return smartMeterId != null 
+                && smartMeterId.Any()
+                && electricityReadings != null 
+                && electricityReadings.Any();
         }
     }
 }

@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using JOIEnergy.Enums;
-using JOIEnergy.Services;
+﻿using JOIEnergy.Enums;
+using JOIEnergy.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.Linq;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 

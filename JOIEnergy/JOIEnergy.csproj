@@ -6,14 +6,12 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\" />
-    <Folder Include="Services\" />
-    <Folder Include="Enums\" />
-    <Folder Include="Domain\" />
     <Folder Include="Generator\" />
   </ItemGroup> 
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
   </ItemGroup>
 
   <ItemGroup>

@@ -8,7 +8,8 @@ namespace JOIEnergy.Generator
 {
     public class PricePlanGenerator
     {
-        public static List<PricePlan> PricePlans()
+        //TODO Encapsulate structure in class. For example : Dictionnary
+        public static IList<PricePlan> PricePlans()
         {
             return new List<PricePlan> {
                 new PricePlan{

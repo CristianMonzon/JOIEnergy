@@ -7,9 +7,9 @@ namespace JOIEnergy.Generator
 {
     public class ElectricityReadingGenerator
     {
-        public static Dictionary<string, List<ElectricityReading>> ElectricityReading()
+        public static Dictionary<string, IList<ElectricityReading>> ElectricityReading()
         {
-            var readings = new Dictionary<string, List<ElectricityReading>>();         
+            var readings = new Dictionary<string, IList<ElectricityReading>>();         
             var smartMeterIds = SuppliersGenerator.Suppliers.Select(mtpp => mtpp.Key);
 
             foreach (var smartMeterId in smartMeterIds)

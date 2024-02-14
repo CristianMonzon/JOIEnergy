@@ -1,4 +1,5 @@
-﻿using JOIEnergy.Enums;
+﻿using JOIEnergy.Domain;
+using JOIEnergy.Enums;
 using System;
 using System.Collections.Generic;
 
@@ -19,5 +20,13 @@ namespace JOIEnergy.Generator
                 return smartMeterToPricePlanAccounts;
             }
         }
+
+        private static Supplier GetBySupplier(Supplier suplier)
+        {
+            Supplier supplier = Supplier.NullSupplier;
+            Suppliers.TryGetValue(suplier.ToString(), out supplier);
+            return supplier;
+        }
+
     }
 }

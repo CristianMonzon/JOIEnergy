@@ -5,7 +5,7 @@ using JOIEnergy.Services.Interface;
 
 namespace JOIEnergy.Services
 {
-    public class AccountService : Dictionary<string, Supplier>, IAccountService
+    public class AccountService : IAccountService
     { 
         private Dictionary<string, Supplier> _smartMeterToPricePlanAccounts;
 
@@ -14,11 +14,9 @@ namespace JOIEnergy.Services
         }
 
         public Supplier GetPricePlanIdForSmartMeterId(string smartMeterId) {
-            if (!_smartMeterToPricePlanAccounts.ContainsKey(smartMeterId))
-            {
-                return Supplier.NullSupplier;
-            }
-            return _smartMeterToPricePlanAccounts[smartMeterId];
+            var response = Supplier.NullSupplier;
+            _smartMeterToPricePlanAccounts.TryGetValue(smartMeterId, out response);
+            return response;
         }
     }
 }

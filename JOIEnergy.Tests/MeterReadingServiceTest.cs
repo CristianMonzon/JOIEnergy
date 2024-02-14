@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using JOIEnergy.Domain;
 using JOIEnergy.Services;
-using JOIEnergy.Domain;
+using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace JOIEnergy.Tests
@@ -14,7 +14,7 @@ namespace JOIEnergy.Tests
 
         public MeterReadingServiceTest()
         {
-            meterReadingService = new MeterReadingService(new Dictionary<string, List<ElectricityReading>>());
+            meterReadingService = new MeterReadingService(new Dictionary<string, IList<ElectricityReading>>());
 
             meterReadingService.StoreReadings(SMART_METER_ID, new List<ElectricityReading>() {
                 new ElectricityReading() { Time = DateTime.Now.AddMinutes(-30), Reading = 35m },

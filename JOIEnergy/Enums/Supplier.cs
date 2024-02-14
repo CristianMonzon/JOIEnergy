@@ -2,9 +2,10 @@
 {
     public enum Supplier
     {
+        NullSupplier,
         DrEvilsDarkEnergy,
         TheGreenEco,
         PowerForEveryone,
-        NullSupplier
+        
     }
 }
